@@ -30,9 +30,7 @@ A_IDX, C_IDX, M_IDX, FLARE_IDX = 4, 5, 6, 7
 FIELD_NAMES = ['F', 'D', 'S', 'P', 'A', 'C', 'M', 'flare']
 
 
-# ---------------------------------------------------------------------
 # Plot 1: training curve - val_mae + effective rank overlaid
-# ---------------------------------------------------------------------
 def plot_training_curve(history_path: str = 'training_history.json',
                          out_path: str = 'fig1_training_curve.png'):
     with open(history_path) as f:
@@ -77,10 +75,7 @@ def plot_training_curve(history_path: str = 'training_history.json',
     print(f"Saved {out_path}")
 
 
-# ---------------------------------------------------------------------
-# Plot 2: rollout example - predicted vs true, for the same patient
-# used in evaluate.py's explain_prediction (test_trajs[0])
-# ---------------------------------------------------------------------
+# Plot 2: rollout example - predicted vs true, for the same patient used in evaluate.py's explain_prediction (test_trajs[0])
 def plot_rollout_example(model_path: str = 'best_model.pt',
                           patient_idx: int = 0,
                           history_months: int = 6,
@@ -142,9 +137,7 @@ def plot_rollout_example(model_path: str = 'best_model.pt',
     print(f"Saved {out_path}")
 
 
-# ---------------------------------------------------------------------
 # Plot 3: generalisation probes - bar chart of MAE vs baseline
-# ---------------------------------------------------------------------
 def plot_generalisation_probes(model_path: str = 'best_model.pt',
                                 out_path: str = 'fig3_generalisation_probes.png'):
     device = torch.device('cpu')
