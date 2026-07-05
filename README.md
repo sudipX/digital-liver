@@ -59,7 +59,7 @@ Context supplied alongside $x(t)$, never predicted: `disease_class`, age
 months. The 6-dimensional context vector fed to the model at month $t$ is:
 
 $$
-\text{context}(t) = \big[\, \text{disease\_class},\ \text{age\_normalized},\ \text{sex},\ \text{responder},\ \mathbb{1}\{t \geq \text{udca\_start\_month}\},\ \mathbb{1}\{t \in \text{ercp\_months}\} \,\big]
+\text{context}(t) = \big[\, \text{disease class},\ \text{age normalized},\ \text{sex},\ \text{responder},\ \mathbb{1}\{t \geq \text{udca start month}\},\ \mathbb{1}\{t \in \text{ercp months}\} \,\big]
 $$
 
 ## 3. Synthetic data generator (`generator.py`)
@@ -78,7 +78,7 @@ $$
 \text{drive}(t) = \max\big(0,\ s \cdot (A(t) + C(t)) \cdot r\big)
 $$
 
-where $r$ is a fixed rate constant ($\text{RATCHET\_RATE} = 0.012$) and $s$ is the
+where $r$ is a fixed rate constant ($\text{RATCHET RATE} = 0.012$) and $s$ is the
 patient's susceptibility. Each field then updates as:
 
 $$
@@ -98,34 +98,37 @@ non-monotone.
 
 ### Biliary strictures (S)
 
-S creeps up slowly every month, but can be relieved by an ERCP procedure:
+S creeps up slowly every month, but can be relieved by an ERCP procedure. If ERCP
+occurs at month $t+1$:
 
 $$
-S(t+1) =
-\begin{cases}
-S(t) - \text{Uniform}(0.08, 0.28) & \text{if ERCP occurs at month } t+1 \\
-S(t) + \text{S\_CREEP\_BASE} + \text{Normal}(0, \text{S\_CREEP\_NOISE}) & \text{otherwise}
-\end{cases}
+S(t+1) = S(t) - \text{Uniform}(0.08, 0.28)
+$$
+
+Otherwise:
+
+$$
+S(t+1) = S(t) + \text{S CREEP BASE} + \text{Normal}(0, \text{S CREEP NOISE})
 $$
 
 with a monotonicity floor applied only in non-ERCP months.
 
 ### Inflammatory activity (A) and cholestasis (C)
 
-Both fields mean-revert toward a shared setpoint $\mu$ ($\text{MEAN\_AC} = 0.20$)
-at a shared speed $k$ ($\text{REVERSION\_SPEED} = 0.10$), and both receive the
+Both fields mean-revert toward a shared setpoint $\mu$ ($\text{MEAN AC} = 0.20$)
+at a shared speed $k$ ($\text{REVERSION SPEED} = 0.10$), and both receive the
 same additive jump when a flare occurs this month:
 
 $$
-A(t+1) = A(t) + k(\mu - A(t)) + \text{Normal}(0, \sigma) + \text{flare\_effect} \cdot \mathbb{1}\{\text{new\_flare}\}
+A(t+1) = A(t) + k(\mu - A(t)) + \text{Normal}(0, \sigma) + \text{flare effect} \cdot \mathbb{1}\{\text{new flare}\}
 $$
 $$
-C(t+1) = C(t) + k(\mu - C(t)) + \text{Normal}(0, \sigma) + \text{flare\_effect} \cdot \mathbb{1}\{\text{new\_flare}\}
+C(t+1) = C(t) + k(\mu - C(t)) + \text{Normal}(0, \sigma) + \text{flare effect} \cdot \mathbb{1}\{\text{new flare}\}
 $$
 
 If the patient is a treatment responder and UDCA is active this month, both
 fields are additionally suppressed by a multiplicative factor
-($\text{UDCA\_SUPPRESSION} = 0.90$):
+($\text{UDCA SUPPRESSION} = 0.90$):
 
 $$
 A(t+1) \leftarrow A(t+1) \cdot 0.90 \quad \text{(responders only, UDCA active only)}
@@ -140,7 +143,7 @@ The flare field itself spikes on a new flare event (probability 0.05 per month)
 and decays exponentially otherwise:
 
 $$
-\text{flare}(t+1) = \text{flare}(t) \cdot \text{decay} + \text{magnitude} \cdot \mathbb{1}\{\text{new\_flare}\}
+\text{flare}(t+1) = \text{flare}(t) \cdot \text{decay} + \text{magnitude} \cdot \mathbb{1}\{\text{new flare}\}
 $$
 
 with $\text{decay} = 0.65$ and $\text{magnitude} = 0.85$.
@@ -155,7 +158,7 @@ $$
 M(t+1) = M(t) + F(t) \cdot C(t) \cdot \text{rate} \cdot s
 $$
 
-with a fixed generator-side rate constant ($\text{M\_ACCUMULATION\_RATE} = 0.006$),
+with a fixed generator-side rate constant ($\text{M ACCUMULATION RATE} = 0.006$),
 clipped to the range $[0, 2]$ and floored at $M(t)$ so it can never decrease.
 
 ### Verification
@@ -270,7 +273,7 @@ S is handled with a hard branch on the ERCP flag rather than a soft blend, since
 ERCP either happens this month or it does not:
 
 $$
-S(t+1) = \text{ercp\_flag} \cdot \sigma(h_{S_{\text{ercp}}}) + (1 - \text{ercp\_flag}) \cdot \big(S(t) + \text{softplus}(h_{S_{\text{incr}}})\big)
+S(t+1) = \text{ercp flag} \cdot \sigma(h_{S_{\text{ercp}}}) + (1 - \text{ercp flag}) \cdot \big(S(t) + \text{softplus}(h_{S_{\text{incr}}})\big)
 $$
 
 The free fields (A, C, flare) have no monotonicity constraint and are produced
@@ -320,7 +323,7 @@ Collapse prevention and collapse detection are deliberately kept separate.
 CollapseMonitor is not part of the loss; it is a diagnostic run on a batch of
 latent vectors, ideally on held-out data, independent of training.
 
-For a batch of latents $z$ of shape $(n_{\text{samples}}, \text{latent\_dim})$:
+For a batch of latents $z$ of shape $(n_{\text{samples}}, \text{latent dim})$:
 
 - Per-dimension standard deviation: $\text{std} = z.\text{std}(\dim=0)$. A
   dimension is flagged collapsed if its std falls below a threshold (default
@@ -331,7 +334,7 @@ For a batch of latents $z$ of shape $(n_{\text{samples}}, \text{latent\_dim})$:
   entropy of that distribution:
 
   $$
-  \text{effective\_rank} = \exp\Big(-\sum_i p_i \log(p_i)\Big)
+  \text{effective rank} = \exp\Big(-\sum_i p_i \log(p_i)\Big)
   $$
 
   This is a soft measure of how many independent dimensions the latent is actually
@@ -381,7 +384,7 @@ $$
 \Delta M_{\text{pred}} = x_{\text{final}}[M](t+1) - x_{\text{prev}}[M](t)
 $$
 $$
-\Delta M_{\text{target}} = x_{\text{prev}}[F](t) \cdot x_{\text{prev}}[C](t) \cdot e^{\,\text{log\_m\_rate}}
+\Delta M_{\text{target}} = x_{\text{prev}}[F](t) \cdot x_{\text{prev}}[C](t) \cdot e^{\,\text{log m rate}}
 $$
 $$
 \mathcal{L}_{\text{coupling}} = \text{MSE}\big(\Delta M_{\text{pred}},\ \Delta M_{\text{target}}\big)
@@ -424,7 +427,7 @@ state as its next input (teacher forcing) or feeds its own predicted state back
 in (scheduled sampling), controlled by a decaying teacher-forcing probability:
 
 $$
-\text{tf\_prob}(\text{epoch}) = \max\big(\text{floor},\ \text{start} \cdot \text{decay}^{\text{epoch}}\big)
+\text{tf prob}(\text{epoch}) = \max\big(\text{floor},\ \text{start} \cdot \text{decay}^{\text{epoch}}\big)
 $$
 
 with $\text{start} = 1.0$, $\text{decay} = 0.97$, $\text{floor} = 0.3$. Early in
@@ -477,7 +480,7 @@ safety net would indicate the safety net itself has a bug.
 
 Separate from monotonicity. Compares the model's predicted M increment against
 the generator's true rate formula
-($F(t) \cdot C(t) \cdot \text{true\_rate} \cdot \text{susceptibility}$), which is
+($F(t) \cdot C(t) \cdot \text{true rate} \cdot \text{susceptibility}$), which is
 only available at evaluation time since it depends on the hidden susceptibility
 value the generator does not expose to the model. Also reports the model's
 learned `log_m_rate` against the generator's true constant for direct
