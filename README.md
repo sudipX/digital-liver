@@ -377,13 +377,20 @@ and C for responders. The first of these is reinforced with an explicit auxiliar
 loss term, since it is the one coupling that is a longer-horizon accumulation
 rather than an instantaneous effect and is not otherwise directly supervised at
 every step in the same way:
+$$
+\Delta M_{\text{pred}}
+=
+x_{\text{final}}[M](t+1)
+-
+x_{\text{prev}}[M](t)
+$$
 
 $$
-\Delta M_{\text{pred}} = x_{\text{final}}[M](t+1) - x_{\text{prev}}[M](t)
-$$
-
-$$
-\Delta M_{\text{target}} = x_{\text{prev}}[F](t) \cdot x_{\text{prev}}[C](t) \cdot e^{\,\text{log m rate}}
+\Delta M_{\text{target}}
+=
+x_{\text{prev}}[F](t)\,
+x_{\text{prev}}[C](t)\,
+e^{\mathrm{log\_m\_rate}}
 $$
 
 $$
