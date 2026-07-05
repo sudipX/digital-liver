@@ -388,7 +388,7 @@ every step in the same way:
 
 ```math
 \mathcal{L}_{\text{coupling}} = \text{MSE}\big(\Delta M_{\text{pred}},\ \Delta M_{\text{target}}\big)
-```math
+```
 
 `log_m_rate` is a single learned scalar parameter owned by the model, stored
 in log space so its exponent is always positive, initialized to a small
