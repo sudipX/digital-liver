@@ -54,7 +54,7 @@ $x(t)$ is an 8-dimensional vector, one entry per month:
 | 6   | M     | malignancy hazard accumulator  | [0, 2]  | monotone non-decreasing                          |
 | 7   | flare | acute cholangitis flare        | [0, 1]  | transient, decays                                |
 
-Context supplied alongside $x(t)$, never predicted: disease_class, age
+Context supplied alongside $x(t)$, never predicted: `disease_class`, age
 (normalized), sex, responder (0 or 1), UDCA start month, and a list of ERCP event
 months. The 6-dimensional context vector fed to the model at month $t$ is:
 
@@ -160,10 +160,10 @@ clipped to the range $[0, 2]$ and floored at $M(t)$ so it can never decrease.
 
 ### Verification
 
-verify_generator replays every generated trajectory and checks, transition by
+`verify_generator` replays every generated trajectory and checks, transition by
 transition, that F, D, P, and M never decrease, that S never decreases outside
-ERCP months, and that every field stays within its declared bounds. train.py calls
-this before any training begins and raises an error if it fails.
+ERCP months, and that every field stays within its declared bounds. `train.py`
+calls this before any training begins and raises an error if it fails.
 
 ## 4. Model architecture (`model.py`, `constraints.py`)
 
@@ -216,7 +216,7 @@ exactly how each field is constrained.
 
 A final deterministic layer that clamps anything that slipped through the
 decoder's construction back into a valid range, described in section 5. It also
-exposes count_corrections, which measures how often it actually had to change
+exposes `count_corrections`, which measures how often it actually had to change
 something, as a way of auditing whether the decoder's guarantee is doing its job
 unaided.
 
@@ -293,7 +293,7 @@ x_{\text{final}} = \text{clamp}\big(x_{\text{final}},\ \text{lower}=0,\ \text{up
 $$
 
 With the softplus-parameterised decoder, this layer should never actually have to
-change anything; count_corrections exists to confirm that in practice, and to flag
+change anything; `count_corrections` exists to confirm that in practice, and to flag
 it immediately if it ever does, which would indicate a decoder bug upstream rather
 than the safety net itself failing.
 
@@ -381,13 +381,13 @@ $$
 \Delta M_{\text{pred}} = x_{\text{final}}[M](t+1) - x_{\text{prev}}[M](t)
 $$
 $$
-\Delta M_{\text{target}} = x_{\text{prev}}[F](t) \cdot x_{\text{prev}}[C](t) \cdot e^{\log\_m\_rate}
+\Delta M_{\text{target}} = x_{\text{prev}}[F](t) \cdot x_{\text{prev}}[C](t) \cdot e^{\,\text{log\_m\_rate}}
 $$
 $$
 \mathcal{L}_{\text{coupling}} = \text{MSE}\big(\Delta M_{\text{pred}},\ \Delta M_{\text{target}}\big)
 $$
 
-$\log\_m\_rate$ is a single learned scalar parameter owned by the model, stored
+`log_m_rate` is a single learned scalar parameter owned by the model, stored
 in log space so its exponent is always positive, initialized to a small
 uninformed guess. It is never given the generator's true rate constant directly;
 the model has to learn its own estimate purely from the gradient of this loss
@@ -457,7 +457,7 @@ Four distinct evaluation angles, each answering a different question.
 ### Predictive accuracy
 
 Rolling forecast evaluation: give the model the first N months of history
-(default 12), then let it roll forward autoregressively (model.rollout) for the
+(default 12), then let it roll forward autoregressively (`model.rollout`) for the
 remainder of a held-out trajectory, using its own predictions as input at every
 step (no teacher forcing at all). Mean absolute error is reported overall and
 broken down per field.
@@ -465,8 +465,9 @@ broken down per field.
 ### Constraint violation rate
 
 For every transition in a held-out set, checks whether the raw decoder output
-(x_pred, before the safety net) ever violates a ratchet field's monotonicity, and
-separately whether the fully safety-netted output (x_final) ever does. The two
+(`x_pred`, before the safety net) ever violates a ratchet field's monotonicity,
+and separately whether the fully safety-netted output (`x_final`) ever does. The
+two
 numbers answer different questions: a violation in the pre-safety-net output that
 disappears post-safety-net means the guarantee is coming entirely from the final
 clamp rather than from the decoder's construction; a violation that survives the
@@ -479,7 +480,7 @@ the generator's true rate formula
 ($F(t) \cdot C(t) \cdot \text{true\_rate} \cdot \text{susceptibility}$), which is
 only available at evaluation time since it depends on the hidden susceptibility
 value the generator does not expose to the model. Also reports the model's
-learned $\log\_m\_rate$ against the generator's true constant for direct
+learned `log_m_rate` against the generator's true constant for direct
 comparison.
 This tests whether the accumulation dynamics are faithful, independent of whether
 the monotonicity shape constraint holds.
@@ -507,7 +508,7 @@ within the synthetic process only, not validity against a real disease.
 
 ### Explained prediction
 
-explain_prediction traces one specific rollout prediction back to the summary
+`explain_prediction` traces one specific rollout prediction back to the summary
 statistics of the patient's own history (mean F, mean C, mean F times C over the
 history window) and the patient's context (responder status, UDCA start month),
 producing a note about why the model's predicted trajectory looks the way it
@@ -552,10 +553,10 @@ required.
    python train.py
    ```
 
-   Runs verify_generator first and raises an error if the generator violates its
-   own constraints. Trains for 80 epochs by default, printing progress every 10
-   epochs. Saves the best checkpoint to best_model.pt and per-epoch history to
-   training_history.json.
+   Runs `verify_generator` first and raises an error if the generator violates
+   its own constraints. Trains for 80 epochs by default, printing progress every
+   10 epochs. Saves the best checkpoint to `best_model.pt` and per-epoch history
+   to `training_history.json`.
 
 3. Evaluate:
 
@@ -563,7 +564,7 @@ required.
    python evaluate.py
    ```
 
-   Loads best_model.pt and runs predictive accuracy, constraint violation rate,
+   Loads `best_model.pt` and runs predictive accuracy, constraint violation rate,
    the coupling check, a collapse report on held-out latents, all three
    generalisation probes, and one explained prediction, printing everything to
    stdout.
@@ -574,8 +575,8 @@ required.
    python plots.py
    ```
 
-   Requires training_history.json and best_model.pt to already exist (run
-   train.py first). Produces the training curve, a rollout example figure, and
+   Requires `training_history.json` and `best_model.pt` to already exist (run
+   `train.py` first). Produces the training curve, a rollout example figure, and
    the generalisation probe bar chart.
 
 ## 12. Design rationale
