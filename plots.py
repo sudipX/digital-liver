@@ -83,7 +83,7 @@ def plot_training_curve(history_path: str = 'training_history.json',
 # ---------------------------------------------------------------------
 def plot_rollout_example(model_path: str = 'best_model.pt',
                           patient_idx: int = 0,
-                          history_months: int = 12,
+                          history_months: int = 6,
                           n_months: int = 24,
                           out_path: str = 'fig2_rollout_example.png'):
     device = torch.device('cpu')
