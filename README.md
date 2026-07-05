@@ -143,7 +143,7 @@ The flare field itself spikes on a new flare event (probability 0.05 per month)
 and decays exponentially otherwise:
 
 $$
-\text{flare}(t+1) = \text{flare}(t) \cdot \text{decay} + \text{magnitude} \cdot \mathbb{1}\{\text{new flare}\}
+\text{flare}(t+1) = \text{flare}(t) \cdot \text{decay} + \text{magnitude} \cdot \{\text{new flare}\}
 $$
 
 with $\text{decay} = 0.65$ and $\text{magnitude} = 0.85$.
@@ -205,7 +205,7 @@ passed through a two hidden layer MLP (ReLU, hidden width 32) down to a
 ### Predictor
 
 The predictor takes $z(t)$ alone (no context is passed in directly; the encoder
-has already folded context into $z(t)$) and maps it through a two hidden layer
+has already folded context into $z(t)$ ) and maps it through a two hidden layer
 MLP back to a 16-dimensional $z_{\text{pred}}(t+1)$. This is the core JEPA step:
 predicting in latent space rather than in raw state space.
 
@@ -378,15 +378,17 @@ loss term, since it is the one coupling that is a longer-horizon accumulation
 rather than an instantaneous effect and is not otherwise directly supervised at
 every step in the same way:
 
+$$
+\Delta M_{\text{pred}} = x_{\text{final}}[M](t+1) - x_{\text{prev}}[M](t)
+$$
 
-$\Delta M_{\text{pred}} = x_{\text{final}}[M](t+1) - x_{\text{prev}}[M](t)$
+$$
+\Delta M_{\text{target}} = x_{\text{prev}}[F](t) \cdot x_{\text{prev}}[C](t) \cdot e^{\,\text{log m rate}}$
+$$
 
-
-$\Delta M_{\text{target}} = x_{\text{prev}}[F](t) \cdot x_{\text{prev}}[C](t) \cdot e^{\,\text{log m rate}}$
-
-
-$\mathcal{L}_{\text{coupling}} = \text{MSE}\big(\Delta M_{\text{pred}},\ \Delta M_{\text{target}}\big)$
-
+$$
+\mathcal{L}_{\text{coupling}} = \text{MSE}\big(\Delta M_{\text{pred}},\ \Delta M_{\text{target}}\big)$
+$$
 
 `log_m_rate` is a single learned scalar parameter owned by the model, stored
 in log space so its exponent is always positive, initialized to a small
