@@ -120,10 +120,10 @@ at a shared speed $k$ ($\text{REVERSION SPEED} = 0.10$), and both receive the
 same additive jump when a flare occurs this month:
 
 $$
-A(t+1) = A(t) + k(\mu - A(t)) + \text{Normal}(0, \sigma) + \text{flare effect} \cdot \mathbb{1}\{\text{new flare}\}
+A(t+1) = A(t) + k(\mu - A(t)) + \text{Normal}(0, \sigma) + \text{flare effect} \cdot \{\text{new flare}\}
 $$
 $$
-C(t+1) = C(t) + k(\mu - C(t)) + \text{Normal}(0, \sigma) + \text{flare effect} \cdot \mathbb{1}\{\text{new flare}\}
+C(t+1) = C(t) + k(\mu - C(t)) + \text{Normal}(0, \sigma) + \text{flare effect} \cdot \{\text{new flare}\}
 $$
 
 If the patient is a treatment responder and UDCA is active this month, both
@@ -333,9 +333,7 @@ For a batch of latents $z$ of shape $(n_{\text{samples}}, \text{latent dim})$:
   $p_i = \sigma_i / \sum_j \sigma_j$, and compute the exponential of the Shannon
   entropy of that distribution:
 
-  $$
-  \text{effective rank} = \exp\Big(-\sum_i p_i \log(p_i)\Big)
-  $$
+  $\text{effective rank} = \exp\Big(-\sum_i p_i \log(p_i)\Big)$
 
   This is a soft measure of how many independent dimensions the latent is actually
   using. A latent that only truly varies along k directions will have an effective
