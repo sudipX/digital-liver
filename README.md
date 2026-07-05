@@ -378,17 +378,17 @@ loss term, since it is the one coupling that is a longer-horizon accumulation
 rather than an instantaneous effect and is not otherwise directly supervised at
 every step in the same way:
 
-$$
+```math
 \Delta M_{\text{pred}} = x_{\text{final}}[M](t+1) - x_{\text{prev}}[M](t)
-$$
+```
 
-$$
+```math
 \Delta M_{\text{target}} = x_{\text{prev}}[F](t) \cdot x_{\text{prev}}[C](t) \cdot e^{\,\text{log m rate}}
-$$
+```
 
-$$
+```math
 \mathcal{L}_{\text{coupling}} = \text{MSE}\big(\Delta M_{\text{pred}},\ \Delta M_{\text{target}}\big)
-$$
+```math
 
 `log_m_rate` is a single learned scalar parameter owned by the model, stored
 in log space so its exponent is always positive, initialized to a small
